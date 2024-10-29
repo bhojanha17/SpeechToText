@@ -42,13 +42,14 @@ def main():
     if inp == "exit":
         return
     if inp == "audio":
+        num = 0
         comm = ""
         while comm != "exit":
             print("Press enter to record [type exit to exit]")
             comm = input()
             if comm == "exit":
                 break
-            filename = "test_audio.wav"
+            filename = f"test_audio{num}.wav"
             print("start recording")
             mydata = sd.rec(16000, samplerate=16000, channels=1, blocking=True)
             print("end recording")
