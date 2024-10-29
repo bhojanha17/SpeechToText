@@ -2,3 +2,4 @@ env
 train
 checkpoints
 __pycache__
+input
