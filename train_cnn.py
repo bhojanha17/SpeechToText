@@ -9,10 +9,8 @@ from dataset import get_train_val_test_loaders
 from model import CNNModel
 from common import *
 import log
-import matplotlib
-matplotlib.use('TkAgg') # For showing plots in Ubuntu
-
-# torch.device = torch.device("cpu")
+# import matplotlib
+# matplotlib.use('TkAgg') # For showing plots in Ubuntu
 
 
 def main():
