@@ -59,6 +59,7 @@ def main():
             output = model(torch.from_numpy(yes_samples))
             pred = predictions(output.data)
             print("Predicted text:", label_dict(pred[0]))
+            num += 1
         return
 
     axes = log.make_training_plot()
