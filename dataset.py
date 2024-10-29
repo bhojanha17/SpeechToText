@@ -1,10 +1,7 @@
 """
-EECS 445 - Introduction to Machine Learning
-Fall 2023 - Project 2
-
-Landmarks Dataset
-    Class wrapper for interfacing with the dataset of landmark images
-    Usage: python dataset.py
+Audio Dataset
+    Class wrapper for interfacing with the dataset of audio samples
+    Usage: from dataset import get_train_val_test_loaders
 """
 
 import os
@@ -17,9 +14,7 @@ from torch.utils.data import Dataset, DataLoader
 
 
 def get_train_val_test_loaders(batch_size):
-    """Return DataLoaders for train, val and test splits.
-
-    Any keyword arguments are forwarded to the LandmarksDataset constructor.
+    """Return DataLoaders for train, val and test splits, as well as the dictionary of semantic label meanings.
     """
     tr = AudioDataset("train")
     tr_loader = DataLoader(tr, batch_size=batch_size, shuffle=True)
@@ -29,7 +24,7 @@ def get_train_val_test_loaders(batch_size):
     return tr_loader, va_loader, te_loader, tr.get_semantic_label
 
 class AudioDataset(Dataset):
-    """Dataset class for landmark images."""
+    """Dataset class for audio samples."""
 
     def __init__(self, partition):
         """Read in the necessary data from disk.
@@ -44,7 +39,7 @@ class AudioDataset(Dataset):
         random.seed(42)
         self.partition = partition
         self.train_audio_path = './train/audio'
-        # labels
+        # labels -> use subset of labels that have sufficient training data
         self.semantic_labels=["yes", "no", "up", "down", "left", "right", "on", "off", "stop", "go"]
         # test and val data
         test = []
@@ -54,9 +49,9 @@ class AudioDataset(Dataset):
         with open("./train/validation_list.txt", "r", encoding='utf-8') as tfile:
             val = tfile.read().split("\n")
         # Load in all the metadata we need from disk
+        print("reading metadata...")
         self.metadata = []
         for i, label in enumerate(self.semantic_labels):
-            print(label)
             waves = [f for f in os.listdir(self.train_audio_path + '/'+ label) if f.endswith('.wav')]
             for wav in waves:
                 fname = label + "/" + wav
@@ -85,15 +80,18 @@ class AudioDataset(Dataset):
     def _load_data(self):
         """Load a single data partition from file."""
         print("loading %s..." % self.partition)
+        # Get names and labels of all the files in the current partition 
         df = [row for row in self.metadata if row["partition"] == self.partition]
         X, y = [], []
         for row in df:
+            # Sample the audio at 8000 samples/s -> good enough for human speech
             samples, _ = librosa.load(self.train_audio_path + '/' + row["filename"], sr=8000)
+            # Only use samples that are 1 second long, since it is the most common and we wish to have a consistent sample size
             if len(samples) == 8000:
                 X.append(samples.reshape(1, 8000))
                 y.append(row["numeric_label"])
         X = np.array(X)
-        print(X.shape)
+        print("number of", self.partition, "samples", X.shape[0])
         return X, np.array(y)
 
     def get_semantic_label(self, numeric_label):

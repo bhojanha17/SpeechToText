@@ -1,3 +1,4 @@
 env
 train
 checkpoints
+__pycache__

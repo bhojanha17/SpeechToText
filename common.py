@@ -1,7 +1,4 @@
 """
-EECS 445 - Introduction to Machine Learning
-Fall 2023  - Project 2
-
 Helper file for common training functions.
 """
 
@@ -12,7 +9,6 @@ import torch
 from torch.nn.functional import softmax
 from sklearn import metrics
 import log
-
 
 def save_checkpoint(model, epoch, checkpoint_dir, stats):
     """Save a checkpoint file to `checkpoint_dir`."""
@@ -79,11 +75,8 @@ def restore_checkpoint(model, checkpoint_dir, cuda=False, force=False, pretrain=
 
     print("Loading from checkpoint {}?".format(filename))
 
-    if cuda:
-        checkpoint = torch.load(filename)
-    else:
-        # Load GPU model on CPU
-        checkpoint = torch.load(filename)
+    # Load model
+    checkpoint = torch.load(filename)
 
     try:
         start_epoch = checkpoint["epoch"]
@@ -94,7 +87,7 @@ def restore_checkpoint(model, checkpoint_dir, cuda=False, force=False, pretrain=
             model.load_state_dict(checkpoint["state_dict"])
         print(
             "=> Successfully restored checkpoint (trained for {} epochs)".format(
-                checkpoint["epoch"]
+                start_epoch
             )
         )
     except:
@@ -149,15 +142,14 @@ def evaluate_epoch(
         correct, total = 0, 0
         running_loss = []
         for X, y in loader:
-            with torch.no_grad():
-                output = model(X)
-                predicted = predictions(output.data)
-                y_true.append(y)
-                y_pred.append(predicted)
-                y_score.append(softmax(output.data, dim=1))
-                total += y.size(0)
-                correct += (predicted == y).sum().item()
-                running_loss.append(criterion(output, y).item())
+            output = model(X)
+            predicted = predictions(output.data)
+            y_true.append(y)
+            y_pred.append(predicted)
+            y_score.append(softmax(output.data, dim=1))
+            total += y.size(0)
+            correct += (predicted == y).sum().item()
+            running_loss.append(criterion(output, y).item())
         y_true = torch.cat(y_true)
         y_pred = torch.cat(y_pred)
         y_score = torch.cat(y_score)

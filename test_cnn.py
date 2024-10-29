@@ -1,10 +1,7 @@
 """
-EECS 445 - Introduction to Machine Learning
-Fall 2023 - Project 2
-
 Test CNN
-    Test our trained CNN from train_cnn.py on the heldout test data.
-    Load the trained CNN model from a saved checkpoint and evaulates using
+    Test our trained CNN from train_cnn.py on the test data.
+    Load the trained CNN model from a saved checkpoint and evaulate using
     accuracy and AUROC metrics.
     Usage: python test_cnn.py
 """
@@ -14,22 +11,48 @@ from dataset import get_train_val_test_loaders
 from model import CNNModel
 from common import *
 import log
+import librosa
+from common import predictions
+import sounddevice as sd
+import soundfile as sf
+import matplotlib
+matplotlib.use('TkAgg') # For showing plots in Ubuntu
 
 
 def main():
     """Print performance metrics for model at specified epoch."""
     # Data loaders
-    tr_loader, va_loader, te_loader, _ = get_train_val_test_loaders(batch_size=32)
+    tr_loader, va_loader, te_loader, label_dict = get_train_val_test_loaders(batch_size=32)
 
     # Model
     model = CNNModel()
 
-    # define loss function
+    # loss function
     criterion = torch.nn.CrossEntropyLoss()
 
-    # Attempts to restore the latest checkpoint if exists
+    # Restore the latest checkpoint if exists
     print("Loading cnn...")
     model, start_epoch, stats = restore_checkpoint(model, "./checkpoints/")
+
+    # Let user select mode
+    inp = ""
+    while inp != "data" and inp != "audio" and inp != "exit":
+        print("Use test data or audio input? [data, audio, exit]")
+        inp = str(input())
+    if inp == "exit":
+        return
+    if inp == "audio":
+        filename = "test_audio.wav"
+        print("start")
+        mydata = sd.rec(16000, samplerate=16000, channels=1, blocking=True)
+        print("end")
+        sd.wait()
+        sf.write("./input/" + filename, mydata, 16000)
+        yes_samples = librosa.load("./input/" + filename, sr = 8000)[0].reshape(1, 1, 8000)
+        output = model(torch.from_numpy(yes_samples))
+        pred = predictions(output.data)
+        print("Le prediction:", label_dict(pred[0]))
+        return
 
     axes = log.make_training_plot()
 

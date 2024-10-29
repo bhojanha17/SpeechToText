@@ -1,9 +1,6 @@
 """
-EECS 445 - Introduction to Machine Learning
-Fall 2023 - Project 2
-
 Train CNN
-    Train a convolutional neural network to classify images
+    Train a convolutional neural network to classify audio samples
     Periodically output training information, and save model checkpoints
     Usage: python train_cnn.py
 """
@@ -12,8 +9,10 @@ from dataset import get_train_val_test_loaders
 from model import CNNModel
 from common import *
 import log
+import matplotlib
+matplotlib.use('TkAgg') # For showing plots in Ubuntu
 
-torch.device = torch.device("cpu")
+# torch.device = torch.device("cpu")
 
 
 def main():
@@ -23,10 +22,12 @@ def main():
     # Model
     model = CNNModel()
 
+    # loss function
     criterion = torch.nn.CrossEntropyLoss()
+    # optimizer for learning weights
     optimizer = torch.optim.Adam(params=model.parameters(), lr=(10**-3))
 
-    # Attempts to restore the latest checkpoint if exists
+    # Restore the latest checkpoint if exists
     print("Loading cnn...")
     model, start_epoch, stats = restore_checkpoint(model, "./checkpoints/")
 
@@ -40,7 +41,7 @@ def main():
     # initial val loss for early stopping
     global_min_loss = stats[0][1]
 
-    # Patience for early stopping.
+    # Patience for early stopping
     patience = 10
     curr_count_to_patience = 0
 

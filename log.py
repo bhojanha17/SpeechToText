@@ -1,7 +1,5 @@
 """
-EECS 445 - Introduction to Machine Learning
-Fall 2023  - Project 2
-Utility functions
+Utility functions for logging training data
 """
 
 import matplotlib.pyplot as plt
@@ -53,12 +51,11 @@ def update_training_plot(axes, epoch, stats):
     splits = ["Validation", "Train", "Test"]
     metrics = ["Accuracy", "Loss", "AUROC"]
     colors = ["r", "b", "g"]
-    for i, metric in enumerate(metrics):
-        for j, split in enumerate(splits):
+    for i, _ in enumerate(metrics):
+        for j, _ in enumerate(splits):
             idx = len(metrics) * j + i
             if idx >= len(stats[-1]):
                 continue
-            # __import__('pdb').set_trace()
             axes[i].plot(
                 range(epoch - len(stats) + 1, epoch + 1),
                 [stat[idx] for stat in stats],
