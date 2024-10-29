@@ -15,8 +15,8 @@ import librosa
 from common import predictions
 import sounddevice as sd
 import soundfile as sf
-import matplotlib
-matplotlib.use('TkAgg') # For showing plots in Ubuntu
+# import matplotlib
+# matplotlib.use('TkAgg') # For showing plots in Ubuntu
 
 
 def main():
@@ -42,16 +42,22 @@ def main():
     if inp == "exit":
         return
     if inp == "audio":
-        filename = "test_audio.wav"
-        print("start")
-        mydata = sd.rec(16000, samplerate=16000, channels=1, blocking=True)
-        print("end")
-        sd.wait()
-        sf.write("./input/" + filename, mydata, 16000)
-        yes_samples = librosa.load("./input/" + filename, sr = 8000)[0].reshape(1, 1, 8000)
-        output = model(torch.from_numpy(yes_samples))
-        pred = predictions(output.data)
-        print("Le prediction:", label_dict(pred[0]))
+        comm = ""
+        while comm != "exit":
+            print("Press enter to record [type exit to exit]")
+            comm = input()
+            if comm == "exit":
+                break
+            filename = "test_audio.wav"
+            print("start recording")
+            mydata = sd.rec(16000, samplerate=16000, channels=1, blocking=True)
+            print("end recording")
+            sd.wait()
+            sf.write("./input/" + filename, mydata, 16000)
+            yes_samples = librosa.load('./input/'+filename, sr = 8000)[0].reshape(1, 1, 8000)
+            output = model(torch.from_numpy(yes_samples))
+            pred = predictions(output.data)
+            print("Predicted text:", label_dict(pred[0]))
         return
 
     axes = log.make_training_plot()
