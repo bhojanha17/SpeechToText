@@ -19,6 +19,7 @@ To train the model, we load our dataset and use pytorch's built in functions to 
 
 ### Testing:
 To test the model, we load our dataset again and select the epoch from which to load the model. Then we can evaluate the metrics on the output of the model against the test data as we did for training and validation data during to measure the success of the model. There is also an optional audio mode that lets you record a voice command and uses the model to convert it to text.
+
 Set of voice commands: "yes", "no", "up", "down", "left", "right", "on", "off", "stop", "go"
 
 ### Sources:
